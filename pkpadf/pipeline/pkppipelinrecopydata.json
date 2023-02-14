@@ -1,6 +1,7 @@
 {
 	"name": "pkppipelinrecopydata",
 	"properties": {
+		"description": "xyz",
 		"activities": [
 			{
 				"name": "Copy data1",
