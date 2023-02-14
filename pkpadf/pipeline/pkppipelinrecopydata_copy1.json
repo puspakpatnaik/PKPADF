@@ -1,6 +1,7 @@
 {
 	"name": "pkppipelinrecopydata_copy1",
 	"properties": {
+		"description": "abc",
 		"activities": [
 			{
 				"name": "Get Metadata1",
