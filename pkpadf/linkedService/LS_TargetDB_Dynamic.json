@@ -1,0 +1,25 @@
+{
+	"name": "LS_TargetDB_Dynamic",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"PMT_ServerName": {
+				"type": "String"
+			},
+			"PMT_DatabaseName": {
+				"type": "String"
+			},
+			"PMT_User_Name": {
+				"type": "String"
+			},
+			"PMT_Password": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().PMT_ServerName};Initial Catalog=@{linkedService().PMT_DatabaseName};User ID=@{linkedService().PMT_User_Name};Password=@{linkedService().PMT_Password}"
+		}
+	}
+}

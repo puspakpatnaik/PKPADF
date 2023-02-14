@@ -1,0 +1,168 @@
+{
+	"name": "PL_Copy_From_Source_TargetTable",
+	"properties": {
+		"activities": [
+			{
+				"name": "PL_Copy_From_CSV_SQLTable",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"Circle",
+								"MonumentName"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Circle",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Circle",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "MonumentName",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "MonumentName",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " Domestic_2019_20",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Domestic_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " Domestic_2020_21",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Foreign_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " Foreign_2019_20",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Domestic_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " Foreign_2020_21",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Foreign_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " PerGrowth_2021_21_2019_20_Domestic",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "PerGrowth_2021_21_2019_20_Domestic",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": " PerGrowth_2021_21_2019_20_Foreign",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "PerGrowth_2021_21_2019_20_Foreign",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_PKPBlobStorageTextSource1",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Sourcedb_1",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-02-06T18:09:51Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

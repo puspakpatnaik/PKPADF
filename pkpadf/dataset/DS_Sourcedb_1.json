@@ -1,0 +1,61 @@
+{
+	"name": "DS_Sourcedb_1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SourceDb_1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "SLNOI",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Circle",
+				"type": "varchar"
+			},
+			{
+				"name": "MonumentName",
+				"type": "varchar"
+			},
+			{
+				"name": "Domestic_2019_20",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Foreign_2019_20",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Domestic_2020_21",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Foreign_2020_21",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "PerGrowth_2021_21_2019_20_Domestic",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "PerGrowth_2021_21_2019_20_Foreign",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Tourist"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

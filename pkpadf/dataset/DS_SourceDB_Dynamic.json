@@ -1,0 +1,86 @@
+{
+	"name": "DS_SourceDB_Dynamic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SOURCEDB_Dynamic",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"PM_Database": {
+					"value": "@dataset().Database",
+					"type": "Expression"
+				},
+				"PM_ServerName": {
+					"value": "@dataset().ServerName",
+					"type": "Expression"
+				},
+				"PM_UserName": {
+					"value": "@dataset().UserName",
+					"type": "Expression"
+				},
+				"PM_Password": {
+					"value": "@dataset().Password",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"Database": {
+				"type": "String"
+			},
+			"ServerName": {
+				"type": "String"
+			},
+			"UserName": {
+				"type": "String"
+			},
+			"Password": {
+				"type": "String"
+			},
+			"FileName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "OrderID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ProductID",
+				"type": "varchar"
+			},
+			{
+				"name": "CustomerID",
+				"type": "varchar"
+			},
+			{
+				"name": "UnitPrice",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 4
+			},
+			{
+				"name": "Quantity",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "InsertDateTime",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().FileName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

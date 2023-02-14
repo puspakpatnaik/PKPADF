@@ -1,0 +1,117 @@
+{
+	"name": "DF_OLTP",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_OLTP_ListOfOrders",
+						"type": "DatasetReference"
+					},
+					"name": "DFListOfOrders"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_OLTP_OrderDetails",
+						"type": "DatasetReference"
+					},
+					"name": "DFOrderDetails"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Order_Table",
+						"type": "DatasetReference"
+					},
+					"name": "sinkOrder"
+				}
+			],
+			"transformations": [
+				{
+					"name": "ListofOrderSelect"
+				},
+				{
+					"name": "OrderDetailSelect"
+				},
+				{
+					"name": "joinOrder"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Order ID} as string,",
+				"          {Order Date} as string,",
+				"          CustomerName as string,",
+				"          State as string,",
+				"          City as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DFListOfOrders",
+				"source(output(",
+				"          {Order ID} as string,",
+				"          Amount as decimal(10,0),",
+				"          Profit as decimal(10,0),",
+				"          Quantity as long,",
+				"          Category as string,",
+				"          {Sub-Category} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DFOrderDetails",
+				"DFListOfOrders select(mapColumn(",
+				"          {Order ID},",
+				"          {Order Date},",
+				"          CustomerName,",
+				"          State,",
+				"          City",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> ListofOrderSelect",
+				"DFOrderDetails select(mapColumn(",
+				"          {Order ID},",
+				"          Amount,",
+				"          Profit,",
+				"          Quantity,",
+				"          Category,",
+				"          {Sub-Category}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> OrderDetailSelect",
+				"ListofOrderSelect, OrderDetailSelect join(ListofOrderSelect@{Order ID} == OrderDetailSelect@{Order ID},",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinOrder",
+				"joinOrder sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Orderid as string,",
+				"          City as string,",
+				"          Amount as decimal(10,2),",
+				"          Profit as decimal(10,2),",
+				"          Quantity as long,",
+				"          Category as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Orderid = ListofOrderSelect@{Order ID},",
+				"          City,",
+				"          Amount,",
+				"          Profit,",
+				"          Quantity,",
+				"          Category",
+				"     )) ~> sinkOrder"
+			]
+		}
+	}
+}

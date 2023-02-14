@@ -1,0 +1,54 @@
+{
+	"name": "DS_TargetDB_Dynamic",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_TargetDB_Dynamic",
+			"type": "LinkedServiceReference",
+			"parameters": {
+				"PMT_ServerName": {
+					"value": "@dataset().ServerName",
+					"type": "Expression"
+				},
+				"PMT_DatabaseName": {
+					"value": "@dataset().Database",
+					"type": "Expression"
+				},
+				"PMT_User_Name": {
+					"value": "@dataset().UserName",
+					"type": "Expression"
+				},
+				"PMT_Password": {
+					"value": "@dataset().Password",
+					"type": "Expression"
+				}
+			}
+		},
+		"parameters": {
+			"ServerName": {
+				"type": "String"
+			},
+			"Database": {
+				"type": "String"
+			},
+			"UserName": {
+				"type": "String"
+			},
+			"Password": {
+				"type": "String"
+			},
+			"FileName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"table": {
+				"value": "@dataset().FileName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

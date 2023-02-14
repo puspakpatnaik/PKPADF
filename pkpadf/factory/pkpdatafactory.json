@@ -1,0 +1,9 @@
+{
+	"name": "pkpdatafactory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "6f5ad194-a6ab-4158-9aee-996ff2712e17",
+		"tenantId": "e61df2d4-a3a9-46f4-bb7a-42d038ed8a30"
+	}
+}

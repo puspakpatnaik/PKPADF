@@ -1,0 +1,57 @@
+{
+	"name": "pkpdatasettarget",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "pkplinkservice",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "Tourism.csv",
+				"container": "pkpcontblob"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Circle",
+				"type": "String"
+			},
+			{
+				"name": "MonumentName",
+				"type": "String"
+			},
+			{
+				"name": " Domestic_2019_20",
+				"type": "String"
+			},
+			{
+				"name": " Foreign_2019_20",
+				"type": "String"
+			},
+			{
+				"name": " Domestic_2020_21",
+				"type": "String"
+			},
+			{
+				"name": " Foreign_2020_21",
+				"type": "String"
+			},
+			{
+				"name": " PerGrowth_2021_21_2019_20_Domestic",
+				"type": "String"
+			},
+			{
+				"name": " PerGrowth_2021_21_2019_20_Foreign",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

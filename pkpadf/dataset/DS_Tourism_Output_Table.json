@@ -1,0 +1,17 @@
+{
+	"name": "DS_Tourism_Output_Table",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_TargetDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Tourist"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

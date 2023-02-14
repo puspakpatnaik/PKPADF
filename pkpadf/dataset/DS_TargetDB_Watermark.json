@@ -1,0 +1,28 @@
+{
+	"name": "DS_TargetDB_Watermark",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_TargetDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "TableName",
+				"type": "varchar"
+			},
+			{
+				"name": "WatermarkValue",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": ""
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,234 @@
+{
+	"name": "PL_IncrementalInsert_l_Order",
+	"properties": {
+		"activities": [
+			{
+				"name": "LKP_TargetDB_Watermark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "Select  \n TableName, WatermarkValue as OldWaterMarkValue\n from [dbo].[watermarktable] where TableName = 'orders'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_TargetDB_Watermark",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "LKP_SourceDB_Order",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select max([InsertDateTime]) as NewWaterMarkValue from [dbo].[orders]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SourceDB_Order",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy_TargetDB_Order",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LKP_TargetDB_Watermark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LKP_SourceDB_Order",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from orders where InsertDateTime > '@{activity('LKP_TargetDB_Watermark').output.firstRow.OldWaterMarkValue}'\nand InsertDateTime <= '@{activity('LKP_SourceDB_Order').output.firstRow.NewWaterMarkValue} '",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "OrderID",
+									"physicalType": "int",
+									"precision": 10
+								},
+								"sink": {
+									"name": "OrderID",
+									"physicalType": "int",
+									"precision": 10
+								}
+							},
+							{
+								"source": {
+									"name": "ProductID",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "ProductID",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "CustomerID",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "CustomerID",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "UnitPrice",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 10
+								},
+								"sink": {
+									"name": "UnitPrice",
+									"physicalType": "decimal",
+									"scale": 4,
+									"precision": 10
+								}
+							},
+							{
+								"source": {
+									"name": "Quantity",
+									"physicalType": "int",
+									"precision": 10
+								},
+								"sink": {
+									"name": "Quantity",
+									"physicalType": "int",
+									"precision": 10
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SourceDB_Order",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_TargetDB_Orders",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "@activity('LKP_SourceDB_Order').output.firstRow.OLdWaterMarkValue",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "SP_UpdateWaterMarkTable",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy_TargetDB_Order",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[spSetWatermark]",
+					"storedProcedureParameters": {
+						"NewTime": {
+							"value": {
+								"value": "@activity('LKP_SourceDB_Order').output.firstRow.NewWaterMarkValue",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"TableName": {
+							"value": {
+								"value": "@activity('LKP_TargetDB_Watermark').output.firstRow.TableName",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_TargetDB",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-02-12T06:22:17Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

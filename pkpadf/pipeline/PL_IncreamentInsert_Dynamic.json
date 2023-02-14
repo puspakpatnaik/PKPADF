@@ -1,0 +1,221 @@
+{
+	"name": "PL_IncreamentInsert_Dynamic",
+	"properties": {
+		"activities": [
+			{
+				"name": "LKP_SourceDB_Dynamic",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select TableName, WatermarkValue as OldWatermarkValue from watermarktable where TableName = @{pipeline().parameters.TableName}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_TargetDB_Watermark",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "LKP_TargetDB_Dynamic",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select max(@{pipeline().parameters.ColumnName}) NewWatermarkValue\nfrom @{pipeline().parameters.TableName}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_SourceDB_Dynamic",
+						"type": "DatasetReference",
+						"parameters": {
+							"Database": {
+								"value": "@{pipeline().parameters.Database}",
+								"type": "Expression"
+							},
+							"ServerName": {
+								"value": "@{pipeline().parameters.ServerName}",
+								"type": "Expression"
+							},
+							"UserName": {
+								"value": "@{pipeline().parameters.UserName}",
+								"type": "Expression"
+							},
+							"Password": {
+								"value": "@{pipeline().parameters.Password}",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@{pipeline().parameters.FileName}",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "CopyData",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LKP_SourceDB_Dynamic",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LKP_TargetDB_Dynamic",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select *\nfrom @{pipeline().parameters.TableName}\nwhere InsertDateTime > '@{activity('LKP_SourceDB_Dynamic').output.firstRow.OldWatermarkValue}'\nand InsertDateTime <= '@{activity('LKP_TargetDB_Dynamic').output.firstRow.NewWatermarkValue}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_SourceDB_Dynamic",
+						"type": "DatasetReference",
+						"parameters": {
+							"Database": {
+								"value": "@{activity('LKP_TargetDB_Dynamic').output.firstRow}.{pipeline().parameters.Database}",
+								"type": "Expression"
+							},
+							"ServerName": {
+								"value": "@{activity('LKP_TargetDB_Dynamic').output}.pipeline().parameters.ServerName",
+								"type": "Expression"
+							},
+							"UserName": {
+								"value": "@{activity('LKP_TargetDB_Dynamic').output.firstRow}.pipeline().parameters.UserName",
+								"type": "Expression"
+							},
+							"Password": {
+								"value": "@{activity('LKP_TargetDB_Dynamic').output.firstRow}.pipeline().parameters.Password",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@{activity('LKP_TargetDB_Dynamic').output.firstRow}.pipeline().parameters.FileName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_TargetDB_Dynamic",
+						"type": "DatasetReference",
+						"parameters": {
+							"ServerName": {
+								"value": "@{activity('LKP_SourceDB_Dynamic').output.firstRow}.pipeline().parameters.Database",
+								"type": "Expression"
+							},
+							"Database": {
+								"value": "@{activity('LKP_SourceDB_Dynamic').output.firstRow}.pipeline().parameters.Database",
+								"type": "Expression"
+							},
+							"UserName": {
+								"value": "@{activity('LKP_SourceDB_Dynamic').output.firstRow}.pipeline().parameters.UserName",
+								"type": "Expression"
+							},
+							"Password": {
+								"value": "@{activity('LKP_SourceDB_Dynamic').output.firstRow}.pipeline().parameters.Password",
+								"type": "Expression"
+							},
+							"FileName": {
+								"value": "@{activity('LKP_SourceDB_Dynamic').output.firstRow}.pipeline().parameters.FileName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"TableName": {
+				"type": "String"
+			},
+			"Database": {
+				"type": "String"
+			},
+			"ServerName": {
+				"type": "String"
+			},
+			"UserName": {
+				"type": "String"
+			},
+			"Password": {
+				"type": "String"
+			},
+			"FileName": {
+				"type": "String"
+			},
+			"ColumnName": {
+				"type": "String"
+			},
+			"UserNamer": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-02-11T13:42:53Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

@@ -1,0 +1,47 @@
+{
+	"name": "DS_DF_Order_Table",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_TargetDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Orderid",
+				"type": "varchar"
+			},
+			{
+				"name": "City",
+				"type": "varchar"
+			},
+			{
+				"name": "Amount",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "Profit",
+				"type": "decimal",
+				"precision": 10,
+				"scale": 2
+			},
+			{
+				"name": "Quantity",
+				"type": "bigint",
+				"precision": 19
+			},
+			{
+				"name": "Category",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Order_Table"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,228 @@
+{
+	"name": "PL_Copy_From_Tourism_Source_TargetSQLTable",
+	"properties": {
+		"activities": [
+			{
+				"name": "PL_Copy_From_Tourism_Source_TargetSQLTable",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[SELECTTOURIST]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBehavior": "upsert",
+						"upsertSettings": {
+							"useTempDB": true,
+							"keys": [
+								"SLNO"
+							]
+						},
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "SLNO",
+									"type": "Int64",
+									"physicalType": "bigint"
+								},
+								"sink": {
+									"name": "SLNO",
+									"type": "Int64",
+									"physicalType": "bigint"
+								}
+							},
+							{
+								"source": {
+									"name": "Circle",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Circle",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "MonumentName",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "MonumentName",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Domestic_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Domestic_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Foreign_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Foreign_2019_20",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Domestic_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Domestic_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Foreign_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "Foreign_2020_21",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "PerGrowth_2021_21_2019_20_Domestic",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "PerGrowth_2021_21_2019_20_Domestic",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "PerGrowth_2021_21_2019_20_Foreign",
+									"type": "String",
+									"physicalType": "varchar"
+								},
+								"sink": {
+									"name": "PerGrowth_2021_21_2019_20_Foreign",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Tourism_Input_Table",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Tourism_Output_Table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "SP_Insert_Tourism",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "PL_Copy_From_Tourism_Source_TargetSQLTable",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[INSERTTOURIST]"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_TargetDB",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Reset_Parameter",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "PL_Copy_From_Tourism_Source_TargetSQLTable",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[RESETPARAMETER]"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_SourceDb_1",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2023-02-08T16:51:18Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

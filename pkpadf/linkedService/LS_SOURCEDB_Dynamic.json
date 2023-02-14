@@ -1,0 +1,25 @@
+{
+	"name": "LS_SOURCEDB_Dynamic",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"parameters": {
+			"PM_Database": {
+				"type": "string"
+			},
+			"PM_ServerName": {
+				"type": "String"
+			},
+			"PM_UserName": {
+				"type": "string"
+			},
+			"PM_Password": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"connectionString": "Integrated Security=False;Encrypt=True;Connection Timeout=30;Data Source=@{linkedService().PM_ServerName};Initial Catalog=@{linkedService().PM_Database};User ID=@{linkedService().PM_UserName};Password=@{linkedService().PM_Password}"
+		}
+	}
+}
