@@ -1,6 +1,7 @@
 {
 	"name": "pkppipelinrecopydata",
 	"properties": {
+		"description": "Click here to register: https://mktoevents.com/Microsoft Event_Azure Virtual Training Day  \n\nkp",
 		"activities": [
 			{
 				"name": "Copy data1",
